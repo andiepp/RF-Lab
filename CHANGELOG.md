@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.0 — unreleased
+## 1.0 — 2026-11-03
 
 The first standalone RF-Lab: the HASE RF-MiniLab's panel as a Windows
 application of its own, talking to the board directly.
