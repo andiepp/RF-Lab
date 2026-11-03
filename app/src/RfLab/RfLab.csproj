@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>RfLab</RootNamespace>
+    <AssemblyName>RfLab</AssemblyName>
+    <AssemblyTitle>RF-Lab</AssemblyTitle>
+    <Description>RF-Lab: the AD9910 DDS signal generator and detector board on a PC.</Description>
+    <ApplicationIcon>RfLab.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="RfLab.ico" />
+  </ItemGroup>
+
+  <!-- the manual, written out when opened; absent until docs/Manual.pdf is built -->
+  <ItemGroup Condition="Exists('..\..\..\docs\Manual.pdf')">
+    <EmbeddedResource Include="..\..\..\docs\Manual.pdf" LogicalName="RfLab.Manual.pdf" />
+  </ItemGroup>
+
+  <!-- the example stored settings, copied to %LocalAppData%\RF-Lab\Presets at the first start -->
+  <ItemGroup>
+    <None Include="..\..\..\presets\*.txt" Link="presets\%(Filename)%(Extension)"
+          CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest"
+          ExcludeFromSingleFile="true" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="RfLab.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RfLab.Core\RfLab.Core.csproj" />
+  </ItemGroup>
+
+</Project>

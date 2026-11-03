@@ -1,0 +1,16 @@
+Name,FM1
+Description,Ffix 10MHz -10dB
+Mode,2
+Frequency,13000000
+Amplitude,10
+FMod,1000
+AMDepth,80
+Fdev,50000
+SweepMode,Bidirectional
+Fstart,10000000
+Fstop,30000000
+Tsweep,2000
+Tmeasure,1000
+SI5351Fclk0,1000000
+SI5351Fclk1,1000000
+SI5351Fclk2,1000000

@@ -1,0 +1,25 @@
+Name,100KHz-28dB
+Description,Ffix 10MHz -10dB
+Mode,0
+Frequency,100000
+Amplitude,28
+FMod,800
+AMDepth,60
+Fdev,50000
+SweepMode,Bidirectional
+Sensor,AD_8
+Fstart,10000000
+Fstop,30000000
+Tsweep,10000
+Tmeasure,500
+Nmeasure,500
+MGENMode,0
+Baudrate,50
+Pattern,Message
+FCenter,1000000
+FShift,425
+PatternAmplitude,10
+Repeat,1
+SI5351Fclk0,250000
+SI5351Fclk1,2000000
+SI5351Fclk2,3000000

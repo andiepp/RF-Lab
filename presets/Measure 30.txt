@@ -1,0 +1,18 @@
+Name,Measure 30
+Description,Ffix 10MHz -10dB
+Mode,5
+Frequency,10000000
+Amplitude,20
+FMod,1000
+AMDepth,80
+Fdev,50000
+SweepMode,Ramp
+Sensor,AD8307_A
+Fstart,10000000
+Fstop,30000000
+Tsweep,3200
+Tmeasure,30
+Nmeasure,320
+SI5351Fclk0,1000000
+SI5351Fclk1,2200000
+SI5351Fclk2,3300000

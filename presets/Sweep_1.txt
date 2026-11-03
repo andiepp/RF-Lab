@@ -1,0 +1,16 @@
+Name,Sweep_1
+Description,Ffix 10MHz -10dB
+Mode,3
+Frequency,21100000
+Amplitude,30
+FMod,1000
+AMDepth,80
+Fdev,10000
+SweepMode,Ramp
+Fstart,9900000
+Fstop,31000000
+Tsweep,5000
+Tmeasure,1000
+SI5351Fclk0,1000000
+SI5351Fclk1,1000000
+SI5351Fclk2,1000000

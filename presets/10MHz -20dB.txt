@@ -1,0 +1,25 @@
+Name,10MHz -20dB
+Description,Ffix 10MHz -10dB
+Mode,0
+Frequency,20000000
+Amplitude,40
+FMod,1000
+AMDepth,80
+Fdev,50000
+SweepMode,Ramp
+Sensor,AD8307_50
+Fstart,10000000
+Fstop,30000000
+Tsweep,10000
+Tmeasure,500
+Nmeasure,500
+MGENMode,0
+Baudrate,50
+Pattern,Message
+FCenter,1000000
+FShift,425
+PatternAmplitude,10
+Repeat,1
+SI5351Fclk0,1000000
+SI5351Fclk1,2000000
+SI5351Fclk2,3000000

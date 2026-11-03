@@ -1,0 +1,518 @@
+﻿<Window x:Class="RfLab.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:RfLab.Controls"
+        xmlns:conv="clr-namespace:RfLab.Converters"
+        Height="652" Width="1312"
+        Title="{Binding Title}"
+        Icon="/RfLab;component/RfLab.ico"
+        Background="{DynamicResource MainWindowBackground}"
+        FontSize="11" FontWeight="Normal"
+        Loaded="Window_Loaded"
+        Closing="Window_Closing"
+        ResizeMode="CanMinimize">
+
+    <Window.InputBindings>
+        <KeyBinding Key="F1" Command="{Binding ManualCommand, RelativeSource={RelativeSource AncestorType=Window}}" />
+    </Window.InputBindings>
+
+    <Window.Resources>
+        <conv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <conv:DDSModModeConverter x:Key="DDSModModeConverter" />
+
+        <!-- the error strip at the left edge, as in the original -->
+        <Style x:Key="ErrorStrip" TargetType="Border">
+            <Setter Property="Background" Value="Transparent" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding ErrorStatus}" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource RfError}" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="LedLamp" TargetType="Ellipse">
+            <Setter Property="Fill" Value="{DynamicResource RfLedOff}" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding LED}" Value="True">
+                    <Setter Property="Fill" Value="{DynamicResource RfLedOn}" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ConnectionLamp" TargetType="Ellipse">
+            <Setter Property="Fill" Value="Transparent" />
+            <Setter Property="Stroke" Value="{DynamicResource RfDimText}" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsConnected}" Value="True">
+                    <Setter Property="Fill" Value="{DynamicResource RfConnected}" />
+                    <Setter Property="Stroke" Value="{DynamicResource RfConnected}" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="TraceLineStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource RfTraceText}" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsSent}" Value="True">
+                    <Setter Property="Foreground" Value="{DynamicResource RfTraceSent}" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="4" />
+            <ColumnDefinition Width="540" />
+            <ColumnDefinition Width="2" />
+            <ColumnDefinition Width="560" />
+            <ColumnDefinition Width="2" />
+            <ColumnDefinition Width="188" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40" />
+            <RowDefinition Height="200" />
+            <RowDefinition Height="260" />
+            <RowDefinition Height="90" />
+            <RowDefinition Height="24" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- ======= -->
+        <!-- Top bar -->
+        <!-- ======= -->
+        <Border Grid.ColumnSpan="7" Background="{DynamicResource RfTopBarBackground}"
+                BorderBrush="{DynamicResource RfTopBarLine}" BorderThickness="0,0,0,1">
+            <DockPanel LastChildFill="False" Margin="6,0">
+                <TextBlock DockPanel.Dock="Left" Text="RF-Lab" FontSize="18" FontWeight="Bold"
+                           Foreground="{DynamicResource RfText}" VerticalAlignment="Center" Margin="6,0,16,2" />
+
+                <TextBlock DockPanel.Dock="Left" Style="{StaticResource TopBarText}" Text="Port" />
+                <ComboBox DockPanel.Dock="Left" Width="96" Height="26" VerticalContentAlignment="Center"
+                          Style="{DynamicResource RfComboStyle}"
+                          ItemsSource="{Binding Ports}" SelectedItem="{Binding SelectedPort}"
+                          IsEnabled="{Binding IsDisconnected}" />
+                <Button DockPanel.Dock="Left" Width="28" Height="26" Margin="4,0" Content="↻" FontSize="14"
+                        Style="{DynamicResource RfKeyStyle}" Padding="0"
+                        ToolTip="Look for serial ports again"
+                        Command="{Binding RefreshPortsCommand}" />
+                <Button DockPanel.Dock="Left" Width="92" Height="26" Margin="4,0"
+                        Style="{DynamicResource RfKeyStyle}"
+                        Content="{Binding ConnectButtonText}"
+                        Command="{Binding ConnectCommand}" />
+                <Ellipse DockPanel.Dock="Left" Width="10" Height="10" Margin="10,0,6,0" StrokeThickness="1"
+                         Style="{StaticResource ConnectionLamp}" />
+                <TextBlock DockPanel.Dock="Left" Style="{StaticResource TopBarText}" Margin="0"
+                           Foreground="{DynamicResource RfText}" Text="{Binding ConnectionText}" />
+
+                <Button DockPanel.Dock="Right" Width="72" Height="26" Margin="4,0"
+                        Style="{DynamicResource RfKeyStyle}"
+                        Content="Manual" ToolTip="Open the manual (F1)"
+                        Command="{Binding ManualCommand, RelativeSource={RelativeSource AncestorType=Window}}" />
+                <ComboBox DockPanel.Dock="Right" Width="112" Height="26" VerticalContentAlignment="Center"
+                          Style="{DynamicResource RfComboStyle}"
+                          ItemsSource="{Binding Themes}" SelectedItem="{Binding SelectedTheme}" />
+                <TextBlock DockPanel.Dock="Right" Style="{StaticResource TopBarText}" Text="Theme" />
+            </DockPanel>
+        </Border>
+
+        <!-- ===================== -->
+        <!-- Error strip (left)    -->
+        <!-- ===================== -->
+        <Border Grid.Row="1" Grid.RowSpan="3" Style="{StaticResource ErrorStrip}" />
+
+        <!-- ======================= -->
+        <!-- Frequency and amplitude -->
+        <!-- ======================= -->
+        <Grid Grid.Column="1" Grid.Row="1" Background="{DynamicResource RfDisplayBackground}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="436" />
+                <ColumnDefinition Width="104" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="35" />
+                <RowDefinition Height="165" />
+            </Grid.RowDefinitions>
+
+            <Label Grid.ColumnSpan="2" Style="{StaticResource HeaderLabelStyle}" Content="Signal" />
+
+            <Viewbox Grid.Column="0" Grid.Row="1" Margin="2"
+                     IsEnabled="{Binding IsSweepInactive}"
+                     VerticalAlignment="Center" HorizontalAlignment="Center">
+                <controls:FrequencyDial x:Name="FrequencyDial" />
+            </Viewbox>
+
+            <Viewbox Grid.Column="1" Grid.Row="1" Margin="2"
+                     IsEnabled="{Binding IsSweepInactive}"
+                     VerticalAlignment="Center" HorizontalAlignment="Center">
+                <controls:AmplitudeDial x:Name="AmplitudeDial" />
+            </Viewbox>
+        </Grid>
+
+        <!-- ======================== -->
+        <!-- Modulation, measurement  -->
+        <!-- ======================== -->
+        <Grid Grid.Column="1" Grid.Row="2" Grid.RowSpan="2" Margin="2,0,0,0" Background="{DynamicResource RfModulationBackground}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="80" />
+                <ColumnDefinition Width="70" />
+                <ColumnDefinition Width="125" />
+                <ColumnDefinition Width="50" />
+                <ColumnDefinition Width="125" />
+                <ColumnDefinition Width="85" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="35" />
+                <RowDefinition Height="30" />
+                <RowDefinition Height="30" />
+                <RowDefinition Height="30" />
+                <RowDefinition Height="35" />
+                <RowDefinition Height="30" />
+                <RowDefinition Height="30" />
+                <RowDefinition Height="30" />
+                <RowDefinition Height="12" />
+                <RowDefinition Height="30" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Label Grid.ColumnSpan="7" Style="{StaticResource HeaderLabelStyle}" Content="Modulation" />
+
+            <RadioButton Grid.Row="1" Style="{StaticResource ModRB}" GroupName="ModMode" IsEnabled="{Binding IsSweepInactive}"
+                         IsChecked="{Binding DDS_ModMode, Converter={StaticResource DDSModModeConverter}, ConverterParameter=0}">OFF</RadioButton>
+            <RadioButton Grid.Row="2" Style="{StaticResource ModRB}" GroupName="ModMode" IsEnabled="{Binding IsSweepInactive}"
+                         IsChecked="{Binding DDS_ModMode, Converter={StaticResource DDSModModeConverter}, ConverterParameter=1}">AM</RadioButton>
+            <RadioButton Grid.Row="3" Style="{StaticResource ModRB}" GroupName="ModMode" IsEnabled="{Binding IsSweepInactive}"
+                         IsChecked="{Binding DDS_ModMode, Converter={StaticResource DDSModModeConverter}, ConverterParameter=2}">FM</RadioButton>
+            <RadioButton Grid.Row="5" Style="{StaticResource ModRB}" GroupName="ModMode"
+                         IsChecked="{Binding DDS_ModMode, Converter={StaticResource DDSModModeConverter}, ConverterParameter=3}">SWEEP</RadioButton>
+            <RadioButton Grid.Row="6" Style="{StaticResource ModRB}" GroupName="ModMode"
+                         IsChecked="{Binding DDS_ModMode, Converter={StaticResource DDSModModeConverter}, ConverterParameter=4}">ANALYZE</RadioButton>
+            <RadioButton Grid.Row="9" Style="{StaticResource ModRB}" GroupName="ModMode"
+                         IsChecked="{Binding DDS_ModMode, Converter={StaticResource DDSModModeConverter}, ConverterParameter=5}">MEASURE</RadioButton>
+
+            <!-- NCMultiDigit sets its own DataContext: every binding on one
+                 names its source (the window's data context). -->
+            <Label Grid.Column="1" Grid.Row="1" Style="{StaticResource ModLabel}" Content="F mod" />
+            <Viewbox Grid.Column="2" Grid.Row="1" Margin="0,2" HorizontalAlignment="Left">
+                <controls:NCMultiDigit x:Name="NCMD_Fmod"
+                    IsEnabled="{Binding DataContext.IsFModEnabled, RelativeSource={RelativeSource AncestorType=Window}}"
+                    Min="1" Max="99999" Value="1000"
+                    NC_Background="{StaticResource RfDigitBackground}" NC_Foreground="{StaticResource RfDigitText}"
+                    FormatString="00 000" />
+            </Viewbox>
+
+            <Label Grid.Column="1" Grid.Row="2" Style="{StaticResource ModLabel}" Content="AM [%]" />
+            <Viewbox Grid.Column="2" Grid.Row="2" Margin="0,2" HorizontalAlignment="Left">
+                <controls:NCMultiDigit x:Name="NCMD_AMdepth"
+                    IsEnabled="{Binding DataContext.IsModeAM, RelativeSource={RelativeSource AncestorType=Window}}"
+                    Min="0" Max="99"
+                    NC_Background="{StaticResource RfDigitBackground}" NC_Foreground="{StaticResource RfDigitText}"
+                    FormatString="00" />
+            </Viewbox>
+
+            <Label Grid.Column="1" Grid.Row="3" Style="{StaticResource ModLabel}" Content="FM dev" />
+            <Viewbox Grid.Column="2" Grid.Row="3" Margin="0,2" HorizontalAlignment="Left">
+                <controls:NCMultiDigit x:Name="NCMD_FMdev"
+                    IsEnabled="{Binding DataContext.IsModeFM, RelativeSource={RelativeSource AncestorType=Window}}"
+                    Min="1" Max="999999" Value="1000"
+                    NC_Background="{StaticResource RfDigitBackground}" NC_Foreground="{StaticResource RfDigitText}"
+                    FormatString="000 000" />
+            </Viewbox>
+
+            <Label Grid.ColumnSpan="7" Grid.Row="4" Style="{StaticResource HeaderLabelStyle}" Content="Measurement" />
+
+            <Label Grid.Column="1" Grid.Row="5" Style="{StaticResource ModLabel}" Content="F start" />
+            <Viewbox Grid.Column="2" Grid.Row="5" Margin="0,2" HorizontalAlignment="Left">
+                <controls:NCMultiDigit x:Name="NCMD_Fstart"
+                    IsEnabled="{Binding DataContext.IsModeSWEEP, RelativeSource={RelativeSource AncestorType=Window}}"
+                    Min="100000" Max="300000000" Value="1000000"
+                    NC_Background="{StaticResource RfDigitBackground}" NC_Foreground="{StaticResource RfDigitText}"
+                    FormatString="000 000 000" />
+            </Viewbox>
+
+            <Label Grid.Column="3" Grid.Row="5" Style="{StaticResource ModLabel}" Content="F stop" />
+            <Viewbox Grid.Column="4" Grid.Row="5" Margin="0,2" HorizontalAlignment="Left">
+                <controls:NCMultiDigit x:Name="NCMD_Fstop"
+                    IsEnabled="{Binding DataContext.IsModeSWEEP, RelativeSource={RelativeSource AncestorType=Window}}"
+                    Min="100000" Max="300000000" Value="2000000"
+                    NC_Background="{StaticResource RfDigitBackground}" NC_Foreground="{StaticResource RfDigitText}"
+                    FormatString="000 000 000" />
+            </Viewbox>
+
+            <Label Grid.Column="1" Grid.Row="6" Style="{StaticResource ModLabel}" Content="T sweep" />
+            <Viewbox Grid.Column="2" Grid.Row="6" Margin="0,2" HorizontalAlignment="Left">
+                <controls:NCMultiDigit x:Name="NCMD_Tsweep"
+                    IsEnabled="{Binding DataContext.IsModeSWEEP, RelativeSource={RelativeSource AncestorType=Window}}"
+                    Min="1" Max="16000" Value="1000"
+                    NC_Background="{StaticResource RfDigitBackground}" NC_Foreground="{StaticResource RfDigitText}"
+                    FormatString="00 000" />
+            </Viewbox>
+
+            <ToggleButton Grid.Column="5" Grid.Row="5" Grid.RowSpan="2" Margin="8,2,2,2"
+                          Style="{DynamicResource RfStartStopStyle}"
+                          IsEnabled="{Binding IsModeSWEEP}"
+                          IsChecked="{Binding IsSweepActive}" />
+
+            <Label Grid.Column="3" Grid.Row="6" Style="{StaticResource ModLabel}" Content="Mode" />
+            <ComboBox Grid.Column="4" Grid.Row="6" Margin="2,2,0,2"
+                      Style="{DynamicResource RfComboStyle}"
+                      VerticalContentAlignment="Center" FontSize="12"
+                      IsEnabled="{Binding IsSweepInactive}"
+                      ItemsSource="{Binding SweepModes}"
+                      SelectedItem="{Binding SelectedSweepMode}" />
+
+            <Label Grid.Column="1" Grid.Row="7" Style="{StaticResource ModLabel}" Content="N points"
+                   ToolTip="Points of an ANALYZE run, 10 to 500" />
+            <Viewbox Grid.Column="2" Grid.Row="7" Margin="0,2" HorizontalAlignment="Left">
+                <controls:NCMultiDigit x:Name="NCMD_Nmeasure"
+                    IsEnabled="{Binding DataContext.IsModeANALYZE, RelativeSource={RelativeSource AncestorType=Window}}"
+                    Min="10" Max="500"
+                    NC_Background="{StaticResource RfDigitBackground}" NC_Foreground="{StaticResource RfDigitText}"
+                    FormatString="000" />
+            </Viewbox>
+
+            <Label Grid.Column="1" Grid.Row="9" Style="{StaticResource ModLabel}" Content="T measure" />
+            <Viewbox Grid.Column="2" Grid.Row="9" Margin="0,2" HorizontalAlignment="Left">
+                <controls:NCMultiDigit x:Name="NCMD_Tmeasure"
+                    IsEnabled="{Binding DataContext.IsModeMEASURE, RelativeSource={RelativeSource AncestorType=Window}}"
+                    Min="10" Max="16000" Value="250"
+                    NC_Background="{StaticResource RfDigitBackground}" NC_Foreground="{StaticResource RfDigitText}"
+                    FormatString="00 000" />
+            </Viewbox>
+
+            <Label Grid.Column="3" Grid.Row="9" Style="{StaticResource ModLabel}" Content="Sensor" />
+            <ComboBox Grid.Column="4" Grid.Row="9" Margin="2,2,0,2"
+                      Style="{DynamicResource RfComboStyle}"
+                      VerticalContentAlignment="Center" FontSize="12"
+                      ItemsSource="{Binding Sensors}"
+                      SelectedItem="{Binding SelectedSensor}"
+                      DisplayMemberPath="Name" />
+
+            <ToggleButton Grid.Column="5" Grid.Row="9" Margin="8,3,2,3" Width="40" HorizontalAlignment="Left"
+                          Style="{DynamicResource RfRunHaltStyle}"
+                          IsEnabled="{Binding IsModeMEASURE}"
+                          IsChecked="{Binding IsMeasurementActive}" />
+            <Button Grid.Column="5" Grid.Row="9" Margin="52,3,2,3" Width="24" HorizontalAlignment="Left"
+                    Style="{DynamicResource RfKeyStyle}" Padding="0"
+                    ToolTip="Clear the chart"
+                    Command="{Binding ClearMeasurementCommand}" Content="C" />
+
+            <Border Grid.ColumnSpan="7" Grid.Row="10" Margin="0,10,0,0" Background="{DynamicResource RfDisplayBackground}" />
+        </Grid>
+
+        <Border Grid.Column="2" Grid.Row="1" Grid.RowSpan="3" Background="{DynamicResource RfSeparator}" />
+        <Border Grid.Column="4" Grid.Row="1" Grid.RowSpan="3" Background="{DynamicResource RfSeparator}" />
+
+        <!-- ========================================== -->
+        <!-- Measurements, clock outputs and the trace  -->
+        <!-- ========================================== -->
+        <TabControl Grid.Column="3" Grid.Row="1" Grid.RowSpan="3"
+                    Style="{StaticResource TabControlStyle}">
+
+            <TabItem Header="Measurements" Style="{StaticResource TabItemStyle}">
+                <Grid Background="{DynamicResource RfDisplayBackground}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <ProgressBar Grid.Column="0" Orientation="Vertical"
+                                 Width="10" Margin="0,30,0,60" BorderThickness="0"
+                                 Background="Transparent" Foreground="{DynamicResource RfReadout}"
+                                 HorizontalAlignment="Center" Maximum="1"
+                                 Value="{Binding SensorValueNormalized, Mode=OneWay}" />
+
+                    <TextBlock Grid.Column="0" Margin="0,0,0,34"
+                               FontSize="10" VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                               Foreground="{DynamicResource RfReadout}"
+                               Text="{Binding SensorValueString}" />
+
+                    <controls:RfLabChart Grid.Column="1" Margin="-3,0,10,6"
+                        Background="Transparent"
+                        SeriesBrush="{DynamicResource RfChartSeries}"
+                        AxisBrush="{DynamicResource RfChartAxis}"
+                        LabelBrush="{DynamicResource RfChartLabel}"
+                        AxisLabel="{Binding Xlabel}"
+                        ValueLabel="{Binding SelectedSensor.Units}"
+                        MinimumX="{Binding Xmin}"
+                        MaximumX="{Binding Xmax}"
+                        MinimumY="{Binding SelectedSensor.Minimum}"
+                        MaximumY="{Binding SelectedSensor.Maximum}"
+                        ItemsSource="{Binding MeasurementData}" />
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Clock outputs" Style="{StaticResource TabItemStyle}">
+                <Grid Background="{DynamicResource RfClockBackground}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="20" />
+                        <ColumnDefinition Width="70" />
+                        <ColumnDefinition Width="130" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="80" />
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <Label Grid.ColumnSpan="4"
+                           HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                           FontSize="20" Foreground="{DynamicResource RfPanelText}"
+                           Content="{Binding ClockGeneratorState}" />
+
+                    <Label Grid.Column="1" Grid.Row="2" Style="{StaticResource ModLabel}" Content="Fclk0" />
+                    <Viewbox Grid.Column="2" Grid.Row="2" Margin="0,2" HorizontalAlignment="Left">
+                        <controls:NCMultiDigit x:Name="NCMD_SI5351_Fclk0"
+                            IsEnabled="{Binding DataContext.IsClockGeneratorPresent, RelativeSource={RelativeSource AncestorType=Window}}"
+                            Min="10000" Max="160000000" Value="1000000"
+                            NC_Background="{StaticResource RfDigitBackground}" NC_Foreground="{StaticResource RfDigitText}"
+                            FormatString="000 000 000" />
+                    </Viewbox>
+
+                    <Label Grid.Column="1" Grid.Row="4" Style="{StaticResource ModLabel}" Content="Fclk1" />
+                    <Viewbox Grid.Column="2" Grid.Row="4" Margin="0,2" HorizontalAlignment="Left">
+                        <controls:NCMultiDigit x:Name="NCMD_SI5351_Fclk1"
+                            IsEnabled="{Binding DataContext.IsClockGeneratorPresent, RelativeSource={RelativeSource AncestorType=Window}}"
+                            Min="10000" Max="160000000" Value="2000000"
+                            NC_Background="{StaticResource RfDigitBackground}" NC_Foreground="{StaticResource RfDigitText}"
+                            FormatString="000 000 000" />
+                    </Viewbox>
+
+                    <Label Grid.Column="1" Grid.Row="6" Style="{StaticResource ModLabel}" Content="Fclk2" />
+                    <Viewbox Grid.Column="2" Grid.Row="6" Margin="0,2" HorizontalAlignment="Left">
+                        <controls:NCMultiDigit x:Name="NCMD_SI5351_Fclk2"
+                            IsEnabled="{Binding DataContext.IsClockGeneratorPresent, RelativeSource={RelativeSource AncestorType=Window}}"
+                            Min="10000" Max="160000000" Value="3000000"
+                            NC_Background="{StaticResource RfDigitBackground}" NC_Foreground="{StaticResource RfDigitText}"
+                            FormatString="000 000 000" />
+                    </Viewbox>
+
+                    <TextBlock Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="7" Margin="8,20,20,0"
+                               TextWrapping="Wrap" Foreground="{DynamicResource RfPanelText}"
+                               Text="The Si5351 outputs CLK0 to CLK2, 10 kHz to 160 MHz. A changed value is sent at once. The board starts with its own clock frequencies; connecting sends the values shown here." />
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Trace" Style="{StaticResource TabItemStyle}">
+                <Grid Background="{DynamicResource RfTraceBackground}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="34" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" Margin="8,0">
+                        <CheckBox VerticalAlignment="Center" Style="{DynamicResource RfTraceToggleStyle}"
+                                  IsChecked="{Binding IsTraceEnabled}" Content="Record the MCNF frames" />
+                        <Button Margin="16,0,0,0" Width="64" Height="24"
+                                Style="{DynamicResource RfKeyStyle}"
+                                Command="{Binding ClearTraceCommand}" Content="Clear" />
+                        <TextBlock Style="{StaticResource InfoText}" VerticalAlignment="Center" Margin="16,0,0,0"
+                                   Text="→ request   ← answer: error byte, data, checksum" />
+                    </StackPanel>
+                    <ListBox x:Name="TraceList" Grid.Row="1" Margin="4,0,4,4" BorderThickness="0"
+                             Loaded="TraceList_Loaded"
+                             Background="Transparent"
+                             FontFamily="{DynamicResource RfMonoFont}" FontSize="12"
+                             VirtualizingPanel.IsVirtualizing="True"
+                             ItemsSource="{Binding TraceLines}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Style="{StaticResource TraceLineStyle}" Text="{Binding Text}" />
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+        <!-- ============================ -->
+        <!-- Board and stored settings    -->
+        <!-- ============================ -->
+        <Grid Grid.Column="5" Grid.ColumnSpan="2" Grid.Row="1" Grid.RowSpan="3"
+              Background="{DynamicResource RfDisplayBackground}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="35" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Label Style="{StaticResource HeaderLabelStyle}" Content="Board" />
+            <TextBlock Grid.Row="1" Style="{StaticResource InfoText}" Margin="8,6,4,0"
+                       Foreground="{DynamicResource RfText}" Text="{Binding ConnectionText}" />
+            <TextBlock Grid.Row="2" Style="{StaticResource InfoText}" Text="{Binding NodeType}" />
+            <TextBlock Grid.Row="3" Style="{StaticResource InfoText}">
+                <Run Text="{Binding BufferInfo, Mode=OneWay}" /><LineBreak /><Run Text="{Binding ClockGeneratorState, Mode=OneWay}" />
+            </TextBlock>
+
+            <Grid Grid.Row="4" Margin="0,10,0,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Label Style="{StaticResource HeaderLabelStyle}" FontSize="14" Content="Stored settings" />
+
+                <UniformGrid Grid.Row="1" Columns="3" Margin="4,6,4,2">
+                    <Button Margin="2" Height="24" Style="{DynamicResource RfKeyStyle}" Padding="0"
+                            Command="{Binding ApplyPresetCommand}" Content="Apply"
+                            ToolTip="Load the selected setting into the window and send it" />
+                    <Button Margin="2" Height="24" Style="{DynamicResource RfKeyStyle}" Padding="0"
+                            Command="{Binding SavePresetCommand}" Content="Save"
+                            ToolTip="Store the window's values under the selected name" />
+                    <Button Margin="2" Height="24" Style="{DynamicResource RfKeyStyle}" Padding="0"
+                            Command="{Binding SavePresetAsCommand}" Content="Save as…"
+                            ToolTip="Store the window's values under a new name" />
+                    <Button Margin="2" Height="24" Style="{DynamicResource RfKeyStyle}" Padding="0"
+                            Command="{Binding RenamePresetCommand}" Content="Rename…" />
+                    <Button Margin="2" Height="24" Style="{DynamicResource RfKeyStyle}" Padding="0"
+                            Command="{Binding DeletePresetCommand}" Content="Delete" />
+                    <Button Margin="2" Height="24" Style="{DynamicResource RfKeyStyle}" Padding="0"
+                            Command="{Binding OpenPresetFolderCommand}" Content="Folder"
+                            ToolTip="{Binding PresetDirectory}" />
+                </UniformGrid>
+
+                <TextBlock Grid.Row="2" Style="{StaticResource InfoText}" Margin="8,2,6,4"
+                           FontStyle="Italic" Text="{Binding PresetDescription}" />
+
+                <ListBox x:Name="PresetList" Grid.Row="3" Margin="0,0,2,0" Padding="2"
+                         SelectionChanged="PresetList_SelectionChanged"
+                         MouseDoubleClick="PresetList_MouseDoubleClick"
+                         ToolTip="Click selects a setting; Apply or a double click sends it"
+                         BorderThickness="0,1,0,0" BorderBrush="{DynamicResource RfSeparator}"
+                         Foreground="{DynamicResource RfListText}" Background="{DynamicResource RfListBackground}"
+                         ItemContainerStyle="{StaticResource PresetListItemStyle}"
+                         ItemsSource="{Binding SettingsFiles}"
+                         SelectedItem="{Binding SelectedSettingsFile, Mode=TwoWay}" />
+            </Grid>
+        </Grid>
+
+        <!-- ========== -->
+        <!-- Status bar -->
+        <!-- ========== -->
+        <TextBlock Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="4" Margin="6,0"
+                   VerticalAlignment="Center" FontSize="11" TextTrimming="CharacterEllipsis"
+                   Foreground="{DynamicResource StatusBarTextBrush}"
+                   Text="{Binding StatusInfo}" ToolTip="{Binding StatusInfo}" />
+
+        <StackPanel Grid.Column="5" Grid.ColumnSpan="2" Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right">
+            <TextBlock VerticalAlignment="Center" FontSize="10" Margin="0,0,6,0"
+                       Foreground="{DynamicResource StatusBarTextBrush}" Text="F1 Manual   LED" />
+            <Button Background="Transparent" BorderBrush="Transparent" Margin="2,2,8,2" Padding="2"
+                    ToolTip="The board's LED: click to switch it"
+                    Command="{Binding ToggleIndicatorCommand}">
+                <Ellipse Width="10" Height="10" Style="{StaticResource LedLamp}" />
+            </Button>
+        </StackPanel>
+    </Grid>
+</Window>

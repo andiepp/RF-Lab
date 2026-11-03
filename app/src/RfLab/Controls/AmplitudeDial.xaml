@@ -1,0 +1,70 @@
+<UserControl x:Class="RfLab.Controls.AmplitudeDial"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:RfLab.Controls"
+             FontFamily="Courier New"
+             mc:Ignorable="d" 
+             d:DesignHeight="128" d:DesignWidth="74"
+             Height="128" Width="74">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="34"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="72"/>
+            <RowDefinition Height="25"/>
+        </Grid.RowDefinitions>
+
+
+        <Canvas Grid.ColumnSpan="2" Background="{DynamicResource RfAmplitudeBackground}"/>
+        
+        <Label
+            Style="{StaticResource RangeLabel}"
+            Content="A" 
+            Foreground="{DynamicResource RfDialText}"
+            FontFamily="Arial" FontSize="18" FontWeight="Bold"
+            Background="{DynamicResource RfAmplitudeBackground}"
+            />
+
+        <TextBox
+            x:Name="TB_Amplitude"
+            Grid.Column="1" 
+            Margin="5,2" Padding="2,0"
+            Height="24" FontSize="14"
+            Foreground="{DynamicResource RfDialText}"
+            CaretBrush="{DynamicResource RfDialText}"
+            BorderBrush="{DynamicResource RfDialLine}"
+            Background="Transparent"
+            VerticalContentAlignment="Center"
+            HorizontalContentAlignment="Right"
+            KeyDown="TB_Amplitude_KeyDown"                 
+            />
+
+        <Viewbox 
+            x:Name="VB_AmplitudeDial"
+            Grid.ColumnSpan="2" Grid.Row="1" 
+            Width="74" 
+            HorizontalAlignment="Left" >
+            <local:NCMultiDigit 
+                x:Name="NCMD_Amplitude" 
+                FormatString="00"
+                Min="00" Max="75" Value="10"
+                NC_Background="{StaticResource RfAmplitudeBackground}"
+                NC_Foreground="{StaticResource RfDialText}"
+                SpaceWidth="3"
+                SpaceForeground="{StaticResource RfDialText}">
+            </local:NCMultiDigit>
+        </Viewbox>
+
+        <Label
+            Grid.ColumnSpan="2" Grid.Row="2"
+            Style="{StaticResource RangeLabel}"
+            Content="-- dB --"
+            />
+        
+    </Grid>
+</UserControl>

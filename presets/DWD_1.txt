@@ -1,0 +1,25 @@
+Name,DWD_1
+Description,Ffix 10MHz -10dB
+Mode,5
+Frequency,147000
+Amplitude,50
+FMod,1000
+AMDepth,80
+Fdev,50000
+SweepMode,Ramp
+Sensor,AD8307_50
+Fstart,2000000
+Fstop,2010000
+Tsweep,5000
+Tmeasure,40
+Nmeasure,500
+MGENMode,0
+Baudrate,50
+Pattern,Message
+FCenter,147000
+FShift,425
+PatternAmplitude,40
+Repeat,1
+SI5351Fclk0,1000000
+SI5351Fclk1,2200000
+SI5351Fclk2,3300000

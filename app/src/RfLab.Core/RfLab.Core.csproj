@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>RfLab.Core</RootNamespace>
+    <Description>Client for the RF-Lab board's MCNF serial protocol, and the stored settings.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.IO.Ports" Version="10.0.10" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="RfLab.Core.Tests" />
+  </ItemGroup>
+
+</Project>

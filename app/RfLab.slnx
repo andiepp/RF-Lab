@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/RfLab.Core/RfLab.Core.csproj" />
+    <Project Path="src/RfLab/RfLab.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/RfLab.Core.Tests/RfLab.Core.Tests.csproj" />
+  </Folder>
+</Solution>

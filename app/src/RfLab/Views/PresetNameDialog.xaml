@@ -1,0 +1,21 @@
+<Window x:Class="RfLab.Views.PresetNameDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Width="420" SizeToContent="Height"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize" ShowInTaskbar="False"
+        Background="{DynamicResource RfDisplayBackground}"
+        FocusManager.FocusedElement="{Binding ElementName=NameBox}">
+    <StackPanel Margin="14">
+        <TextBlock Text="Name" Foreground="{DynamicResource RfText}" Margin="0,0,0,4" />
+        <TextBox x:Name="NameBox" Height="24" VerticalContentAlignment="Center" TextChanged="OnTextChanged" />
+        <TextBlock Text="Description" Foreground="{DynamicResource RfText}" Margin="0,10,0,4" />
+        <TextBox x:Name="DescriptionBox" Height="24" VerticalContentAlignment="Center" />
+        <TextBlock x:Name="Problem" Foreground="{DynamicResource RfError}" Margin="0,8,0,0" TextWrapping="Wrap" />
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+            <Button x:Name="OkButton" Content="OK" Width="80" Height="26" IsDefault="True"
+                    Style="{DynamicResource RfKeyStyle}" Click="OnOk" />
+            <Button Content="Cancel" Width="80" Height="26" Margin="8,0,0,0" IsCancel="True"
+                    Style="{DynamicResource RfKeyStyle}" />
+        </StackPanel>
+    </StackPanel>
+</Window>

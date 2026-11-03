@@ -1,0 +1,15 @@
+# build output
+build/
+dist/
+bin/
+obj/
+*.user
+.vs/
+.vscode/
+.idea/
+TestResults/
+
+# Python
+__pycache__/
+*.pyc
+.venv/

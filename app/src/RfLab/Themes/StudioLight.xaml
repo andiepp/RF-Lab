@@ -1,0 +1,67 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+
+    <!-- Studio light: the Studio layout on paper-white cards. The same keys
+         as Classic.xaml; the key styles are in StudioStyles.xaml. -->
+
+    <SolidColorBrush x:Key="MainWindowBackground" Color="#FFE9EDF2" />
+    <SolidColorBrush x:Key="StatusBarTextBrush" Color="#FF5A6576" />
+    <SolidColorBrush x:Key="TabTextBrush" Color="#FF1B2330" />
+    <SolidColorBrush x:Key="AccentBrush" Color="#FF0F8F82" />
+
+    <SolidColorBrush x:Key="RfTopBarBackground" Color="#FFF7F9FB" />
+    <SolidColorBrush x:Key="RfTopBarLine" Color="#FFD3DAE3" />
+    <SolidColorBrush x:Key="RfText" Color="#FF1B2330" />
+    <SolidColorBrush x:Key="RfDimText" Color="#FF5A6576" />
+    <SolidColorBrush x:Key="RfHeaderBackground" Color="#FFF7F9FB" />
+    <SolidColorBrush x:Key="RfHeaderText" Color="#FF1B2330" />
+    <SolidColorBrush x:Key="RfHeaderLine" Color="#FFD3DAE3" />
+    <SolidColorBrush x:Key="RfSeparator" Color="#FFD3DAE3" />
+    <SolidColorBrush x:Key="RfDisplayBackground" Color="#FFFFFFFF" />
+
+    <SolidColorBrush x:Key="RfFrequencyBackground" Color="#FF8E2C38" />
+    <SolidColorBrush x:Key="RfAmplitudeBackground" Color="#FF27407A" />
+    <SolidColorBrush x:Key="RfDialText" Color="#FFFFFFFF" />
+    <SolidColorBrush x:Key="RfDialLine" Color="#FFD3DAE3" />
+    <SolidColorBrush x:Key="RfRangeBackground" Color="#FFFFFFFF" />
+    <SolidColorBrush x:Key="RfRangeText" Color="#FF5A6576" />
+
+    <SolidColorBrush x:Key="RfModulationBackground" Color="#FFFFFFFF" />
+    <SolidColorBrush x:Key="RfClockBackground" Color="#FFFFFFFF" />
+    <SolidColorBrush x:Key="RfPanelText" Color="#FF3B4757" />
+    <SolidColorBrush x:Key="RfDigitBackground" Color="#FFF2F4F7" />
+    <SolidColorBrush x:Key="RfDigitText" Color="#FF1B2330" />
+    <SolidColorBrush x:Key="RfDigitLine" Color="#FFD3DAE3" />
+
+    <SolidColorBrush x:Key="RfChartSeries" Color="#FF0F8F82" />
+    <SolidColorBrush x:Key="RfChartAxis" Color="#FFB4BECB" />
+    <SolidColorBrush x:Key="RfChartLabel" Color="#FF5A6576" />
+    <SolidColorBrush x:Key="RfReadout" Color="#FF0F8F82" />
+
+    <SolidColorBrush x:Key="RfListBackground" Color="#FFFFFFFF" />
+    <SolidColorBrush x:Key="RfListText" Color="#FF1B2330" />
+    <SolidColorBrush x:Key="RfTraceBackground" Color="#FFFFFFFF" />
+    <SolidColorBrush x:Key="RfTraceSent" Color="#FFA4620B" />
+    <SolidColorBrush x:Key="RfTraceText" Color="#FF0B6B61" />
+
+    <SolidColorBrush x:Key="RfStart" Color="#FF0F8F82" />
+    <SolidColorBrush x:Key="RfStop" Color="#FFD64545" />
+    <SolidColorBrush x:Key="RfError" Color="#FFD64545" />
+    <SolidColorBrush x:Key="RfLedOn" Color="#FF0F8F82" />
+    <SolidColorBrush x:Key="RfLedOff" Color="#FFB4BECB" />
+    <SolidColorBrush x:Key="RfConnected" Color="#FF0F8F82" />
+
+    <FontFamily x:Key="RfDigitFont">Cascadia Mono, Consolas</FontFamily>
+    <FontFamily x:Key="RfMonoFont">Cascadia Mono, Consolas</FontFamily>
+    <CornerRadius x:Key="RfCardRadius">8</CornerRadius>
+    <sys:Double x:Key="RfHeaderFontSize">15</sys:Double>
+
+    <SolidColorBrush x:Key="StudioSurface" Color="#FFFFFFFF" />
+    <SolidColorBrush x:Key="StudioLine" Color="#FFD3DAE3" />
+    <SolidColorBrush x:Key="StudioLineHover" Color="#FFA9B4C2" />
+    <SolidColorBrush x:Key="StudioPressed" Color="#FFE3E8EE" />
+    <SolidColorBrush x:Key="StudioAccent" Color="#FF0F8F82" />
+    <SolidColorBrush x:Key="StudioOnAccent" Color="#FFFFFFFF" />
+    <SolidColorBrush x:Key="StudioArrow" Color="#330F8F82" />
+</ResourceDictionary>
